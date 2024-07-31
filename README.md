@@ -5,6 +5,7 @@ July 2024
 
 Contact Ruth Price, ruthpr@bas.ac.uk
 
+<pre>
 data/\
 	model/\
 	ERA5_init_XXX_cap.nc:			processed ERA5 data for figure 6\
@@ -30,6 +31,7 @@ plot_domain_maps.ipynb:		notebook for figure 1\
 plot_lwp_rad_flux.ipynb:	notebook for figures 3, 4, 5, S2, S3 and S4\
 plot_n10_cdnc: ipynb:		notebook for figures 2 and S1\
 plot_theta_q_profiles.ipynb:	notebook for figures 6 and S5\
+</pre>
 
 This code was developed and used on the JASMIN computing facility using the jaspy software package. Latest version at time of writing (last accessed 31/07/2024):\
 https://github.com/cedadev/ceda-jaspy-envs/blob/main/environments/r4.3/mf3-23.11.0-0/jasr4.3-mf3-23.11.0-0-r20240320/final-spec.yml
