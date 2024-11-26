@@ -19,9 +19,9 @@ class Simulation:
 simulations = np.array([
     Simulation('u-cr700', '', 'CONTROL', 'tab:blue', 1.2),
     Simulation('u-cu657', '_ra3_ukca_casim', 'CONTROL', 'tab:blue', 1.2),
-    Simulation('u-ct323', '_fixed_drop_150cc', 'FIXED_DROP', '#ff7f00', 1.2),
-    Simulation('u-cw067', '_RAL3p1_ukca', 'ICE_MICROPHYS', 'tab:orange', 0.75),
+    Simulation('u-ct323', '_fixed_drop_150cc', 'FIXED_DROP', 'tab:orange', 1.2),
+    Simulation('u-cw067', '_RAL3p1_ukca', 'ICE_MICROPHYS', 'tab:brown', 1.2),
     Simulation('u-cw894', '_RAL3p1_ukca', 'ERA5_INITIAL', 'tab:green', 1.2),
-    Simulation('u-dc034', '_RAL3p1_ukca', 'MIXING', 'tab:green', 0.75),
+    Simulation('u-dc034', '_RAL3p1_ukca', 'MIXING', 'tab:purple', 1.2),
     Simulation('u-dd355', '_RAL3p1_ukca', 'ALL_TESTS', 'tab:red', 1.2)
 ])
