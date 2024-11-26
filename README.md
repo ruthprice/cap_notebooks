@@ -27,10 +27,11 @@ regrid-to-amsr.py:		script that uses the iris package to regrid model output to 
 write-submission-files.py:	script that writes the files stashcodes.csv and suites.csv for later use in submit_cap_collocation.sh to submit collocation script to sbatch in bulk.\
 compute_ukca_n10.ipynb:		notebook to calculate N10 variable from UKCA aerosol fields\
 plot_amsr_lwp.ipynb:		notebook for figure 7\
+plot_cloud_mask.ipynb:          notebook for figures S2 and S2\
 plot_domain_maps.ipynb:		notebook for figure 1\
-plot_lwp_rad_flux.ipynb:	notebook for figures 3, 4, 5, S2, S3 and S4\
+plot_lwp_rad_flux.ipynb:	notebook for figures 3, 4, 5, S4, S5 and S6\
 plot_n10_cdnc: ipynb:		notebook for figures 2 and S1\
-plot_theta_q_profiles.ipynb:	notebook for figures 6 and S5\
+plot_theta_q_profiles.ipynb:	notebook for figures 6 and S7\
 </pre>
 
 This code was developed and used on the JASMIN computing facility using the jaspy software package. Latest version at time of writing (last accessed 31/07/2024):\
