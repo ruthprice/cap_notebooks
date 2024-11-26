@@ -8,6 +8,7 @@
 # ======================================================================
 import numpy as np
 import iris
+import iris.cube
 import xarray as xr
 import datetime as dt
 import cartopy.crs as ccrs
@@ -50,6 +51,12 @@ ref_time_s = (ref_time_dt-unix_epoch_dt).total_seconds()
 cap_times, cap_lons, cap_lats = get_cap_coords()
 
 dates = [
+    dt.datetime(2018,1,22),
+    dt.datetime(2018,1,23),
+    dt.datetime(2018,1,24),
+    dt.datetime(2018,1,25),
+    dt.datetime(2018,1,26),
+    dt.datetime(2018,1,27),    
     dt.datetime(2018,1,31),
     dt.datetime(2018,2,1),
     dt.datetime(2018,2,2),
@@ -133,12 +140,23 @@ era_data['altitude'] = (dims, era_z)
 era_data['pot_temp'] = (dims, era_pot_temp)
 
 # Load model output
-sim_codes = ['u-cr700','u-cw894']
+print('[info] loading CAPRICORN simulations')
+sim_codes = ['u-dc034']
 simulations = [sim for sim in simulations if sim.code in sim_codes]
-model_output_dir = [f'/gws/nopw/j04/asci/rprice/ukca_casim_output/{code}/'
-                  for code in sim_codes]
-output_files = [[glob(f'{model_output_dir[s]}{T}{sim.config}_umnsaa_pa000.nc')[0]
-                 for T in ukmo_dates] for s,sim in enumerate(simulations)]
+sim_dates = np.array([
+    # matrix for which simulations run on which dates
+    [0,0,0,0,0,0,1,1,1,1,1],
+    [1,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,0,1,1,1,1,1],
+]).astype(bool)
+model_output_dir = [f'/gws/nopw/j04/asci/rprice/ukca_casim_output/{sim.code}/'
+                  for sim in simulations]
+
+output_files = []
+for s,sim in enumerate(simulations):
+    flist = [glob(f'{model_output_dir[s]}{T}{sim.config}_umnsaa_pa000.nc')[0]
+             for T in np.array(ukmo_dates)[sim_dates[s]]]
+    output_files.append(flist)
 stashcodes = ['STASH_m01s00i004','STASH_m01s00i010','rotated_latitude_longitude']
 
 # for all simulations, load first output file of each forecast cycle
@@ -161,19 +179,21 @@ cap_lats = cap_lats[i_Tinit_to_Tship]
 i_ukmo = np.digitize(cap_lons, ukmo_lon_bounds)-1
 j_ukmo = np.digitize(cap_lats, ukmo_lat_bounds)-1
 ukmo_pot_temp_ship = iris.cube.CubeList([ukmo_pot_temp[t,:,j_ukmo[t],i_ukmo[t]]
-                                         for t in np.arange(5)]).merge_cube()
+                                         for t in np.arange(len(dates))]).merge_cube()
 ukmo_humidity_ship = iris.cube.CubeList([ukmo_humidity[t,:,j_ukmo[t],i_ukmo[t]]
-                                         for t in np.arange(5)]).merge_cube()
+                                         for t in np.arange(len(dates))]).merge_cube()
 
 # ERA5
 era_data_ship = xr.concat([era_data.isel(time=t).sel(latitude=cap_lats[t],
                                                      longitude=cap_lons[t], method='nearest')
-                           for t in np.arange(5)], dim='time')
+                           for t in np.arange(len(dates))], dim='time')
 
 # UM
 PC = ccrs.PlateCarree()
 model_data_ship = []
+dates = np.array(dates)
 for s,sim in enumerate(simulations):
+    i = sim_dates[s]
     # get CAP coords on model rotated pole projection
     rot_coords = model_data[s].rotated_latitude_longitude
     rot_lon = rot_coords.grid_north_pole_longitude
@@ -182,19 +202,21 @@ for s,sim in enumerate(simulations):
         pole_latitude=rot_lat,
         pole_longitude=rot_lon
     )
-    cap_rlons = rot_pole.transform_points(src_crs=PC, x=cap_lons, y=cap_lats)[:,0]
+    cap_rlons = rot_pole.transform_points(src_crs=PC, x=cap_lons[i], y=cap_lats[i])[:,0]
     cap_rlons[cap_rlons<0] += 360
     cap_rlons[cap_rlons>360] -= 360
-    cap_rlats = rot_pole.transform_points(src_crs=PC, x=cap_lons, y=cap_lats)[:,1]
+    cap_rlats = rot_pole.transform_points(src_crs=PC, x=cap_lons[i], y=cap_lats[i])[:,1]
     # use rotated coords in xr.ds.sel()
     ds = [
-        model_data[s].isel(T1HR=t).sel(
+        model_data[s].sel(
+            T1HR=time,
             grid_longitude_t=cap_rlons[t],
             grid_latitude_t=cap_rlats[t],
             method="nearest"
-        ) for t in np.arange(5)
+        ) for t,time in enumerate(dates[sim_dates[s]])
     ]
     ds = xr.concat(ds, dim='T1HR')
+    print(s,sim.code,ds)
     model_data_ship.append(ds)
 
 # ---------------------------------------------------------------------
@@ -216,7 +238,7 @@ if plot:
         axes.plot(model_data_ship[s].longitude_t.values,
                   model_data_ship[s].latitude_t.values, marker='<',
                   ls='None', ms=2, transform=PC, label=sim.label)
-    plt.legend()
+    plt.legend(fontsize=6)
     plt.show()
 
 # ---------------------------------------------------------------------
