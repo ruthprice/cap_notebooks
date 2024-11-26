@@ -62,11 +62,15 @@ ref_time_s = (ref_time_dt-unix_epoch_dt).total_seconds()
 cap_times, cap_lons, cap_lats = get_cap_coords()
 
 # load model data
+rad_stash = [
+    'm01s01i201','m01s01i210','m01s01i211','m01s01i235',
+    'm01s02i201','m01s02i207','m01s02i208',
+]
 print(f'[INFO] loading model data processed using cap_cdo_output.sh')
 model_output_dir = f'/gws/nopw/j04/asci/rprice/ukca_casim_output/{suite}/'
 filename = f'postproc/STASH_{stashcode}.nc'
 model_output = xr.open_dataset(model_output_dir+filename)
-if stashcode in ['m01s01i235','m01s02i207']:
+if stashcode in rad_stash:
     time_npy = model_output['T1HR_rad_diag'].values
 else:
     time_npy = model_output['T1HR'].values          # npy datetime objects
@@ -118,7 +122,7 @@ mean_lon = []
 mean_lat = []
 model_output_grid = []
 for i in np.arange(len(cap_rlons)):
-    if stashcode in ['m01s01i235','m01s02i207']:
+    if stashcode in rad_stash:
         model_output_t = model_output.isel(T1HR_rad_diag=i)
     else:
         model_output_t = model_output.isel(T1HR=i)
@@ -135,7 +139,7 @@ for i in np.arange(len(cap_rlons)):
     new_coords = {}
     for dim in var.dims[:-2]:
         new_coords[dim] = var.coords[dim]
-    if stashcode in ['m01s01i235','m01s02i207']:
+    if stashcode in rad_stash:
         new_coords['T1HR_rad_diag'] = var['T1HR_rad_diag']
     else:
         new_coords['T1HR'] = var['T1HR']
